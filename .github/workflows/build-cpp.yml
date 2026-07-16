@@ -1,0 +1,39 @@
+name: Build XoayPDF C++ (exe nhe)
+
+on:
+  workflow_dispatch:      # bam nut "Run workflow" thu cong
+  push:
+    branches: [ main ]
+
+jobs:
+  build-cpp:
+    runs-on: windows-latest
+    steps:
+      - name: Lay ma nguon
+        uses: actions/checkout@v4
+
+      - name: Cai qpdf (vcpkg, link tinh)
+        run: |
+          vcpkg install qpdf:x64-windows-static
+        shell: cmd
+
+      - name: Configure CMake
+        run: >
+          cmake -B build -S . -A x64
+          -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static
+        shell: cmd
+
+      - name: Build Release
+        run: cmake --build build --config Release
+        shell: cmd
+
+      - name: Xem kich thuoc exe
+        run: dir build\Release\XoayPDF.exe
+        shell: cmd
+
+      - name: Tai len ket qua
+        uses: actions/upload-artifact@v4
+        with:
+          name: XoayPDF-cpp-windows
+          path: build/Release/XoayPDF.exe
